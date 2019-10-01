@@ -1,0 +1,7 @@
+{
+  "id": "webimage/db",
+  "name": "Database",
+  "description": "Wrapper for Doctrine with some additonal functionality for table aliases",
+  "version": "1.0.0",
+  "author": {"name": "Robert Jones II", "email": "rjones@corporatewebimage.com", "website": "https://www.corporatewebimage.com"}
+}
