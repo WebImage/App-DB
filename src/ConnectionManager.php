@@ -120,7 +120,7 @@ class ConnectionManager
 	 *
 	 * @return string
 	 */
-	public function getTableName($tableKey)
+	public function getTableName(string $tableKey)
 	{
 		$table = $this->getTable($tableKey);
 		$prefix = $this->getConfig()->getTablePrefix();
