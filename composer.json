@@ -1,4 +1,5 @@
 {
+  "name": "webimage/plugin-db",
   "autoload": {
     "psr-4": {
       "WebImage\\Db\\": "src/"
