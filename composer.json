@@ -4,5 +4,8 @@
     "psr-4": {
       "WebImage\\Db\\": "src/"
     }
+  },
+  "require": {
+    "doctrine/dbal": "^3.0"
   }
 }
