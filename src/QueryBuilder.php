@@ -11,11 +11,6 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineQueryBuilder;
  */
 class QueryBuilder extends DoctrineQueryBuilder
 {
-	public function __construct(Connection $connection)
-	{
-		$this->connection = $connection;
-	}
-
 	/**
 	 * Alters the table name to use, if necessary, based on Manager
 	 * @param string|null $delete
