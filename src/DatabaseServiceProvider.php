@@ -2,10 +2,10 @@
 
 namespace WebImage\Db;
 
-use League\Container\ServiceProvider\AbstractServiceProvider;
 use RuntimeException;
 use WebImage\Application\ApplicationInterface;
 use WebImage\Config\Config;
+use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
@@ -18,7 +18,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 		ConnectionManager::class
 	];
 
-	public function register()
+	public function register(): void
 	{
 		$config = $this->getConfig();
 		$this->registerManager($config);
@@ -26,7 +26,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
 	private function registerManager(Config $config)
 	{
-		$this->getContainer()->share(ConnectionManager::class, function() use ($config) {
+		$this->getContainer()->addShared(ConnectionManager::class, function() use ($config) {
 
 			$managerConfig = $this->getManagerConfig($config);
 

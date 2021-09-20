@@ -12,6 +12,6 @@ class Plugin extends AbstractPlugin
 	{
 		parent::load($app);
 
-		$app->getServiceManager()->addServiceProvider(DatabaseServiceProvider::class);
+		$app->getServiceManager()->addServiceProvider(new DatabaseServiceProvider);
 	}
 }
