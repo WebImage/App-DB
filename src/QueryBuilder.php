@@ -2,8 +2,8 @@
 
 namespace WebImage\Db;
 
-use Doctrine\DBAL\Query\QueryBuilder as DoctrineQueryBuilder;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder as DoctrineQueryBuilder;
 
 /**
  * Class QueryBuilder
@@ -11,21 +11,9 @@ use Doctrine\DBAL\Connection;
  */
 class QueryBuilder extends DoctrineQueryBuilder
 {
-
-	/** @var ConnectionManager */
-	private $manager;
-	private $connectionName;
-	/**
-	 * QueryBuilder constructor.
-	 *
-	 * @param ConnectionManager $manager
-	 * @param string|null $connectionName
-	 */
-	public function __construct(ConnectionManager $manager, $connectionName=null)
+	public function __construct(Connection $connection)
 	{
-		parent::__construct($manager->getConnection($connectionName));
-		$this->manager = $manager;
-		$this->connectionName = $connectionName;
+		$this->connection = $connection;
 	}
 
 	/**
@@ -138,43 +126,41 @@ class QueryBuilder extends DoctrineQueryBuilder
 	}
 
 	/**
-	 * @return ConnectionManager
-	 */
-	public function getManager()/*: Manager */
-	{
-		return $this->manager;
-	}
-
-	/**
 	 * @param string|null $tableKey
 	 * @param string $mode Manager::MODE_READ | Manager::MODE_WRITE
 	 *
-	 *
-	 *
 	 * @return string
 	 */
-	protected function getTableName($tableKey = null, $mode)
+	protected function getTableName($tableKey = null, $mode): ?string
 	{
-		if (null === $tableKey) return;
+		if (null === $tableKey) return null;
 		if (null !== $mode && !in_array($mode, [ConnectionManager::MODE_READ, ConnectionManager::MODE_WRITE])) {
 			throw new \InvalidArgumentException('$mode should be Manager::MODE_READ or Manager::MODE_WRITE');
 		}
 
-		$table = $this->getManager()->getTable($tableKey);
+		$table      = $tableKey;
+		$connection = $this->getConnection();
 
-		if (null !== $table) {
-			$tableConnectionName = ($mode == ConnectionManager::MODE_WRITE) ? $table->getWriteConnectionName() : $table->getReadConnectionName();
+		if ($connection instanceof \WebImage\Db\Connection) {
+			$manager           = $connection->getConnectionManager();
+			$overrideTableName = $manager->getTable($tableKey);
 
-			if (null !== $tableConnectionName && $tableConnectionName != $this->connectionName) {
-				if ($this->connectionName != null) {
-					throw new MultiConnectionQueryBuilderException(sprintf('%s can only work with one connection at a time', __CLASS__));
+			if ($overrideTableName !== null) {
+				$tableConnectionName = ($mode == ConnectionManager::MODE_WRITE) ? $overrideTableName->getWriteConnectionName() : $overrideTableName->getReadConnectionName();
+
+				if (null !== $tableConnectionName && $tableConnectionName != $connection->getConnectionName()) {
+					if ($connection->getConnectionName() !== null) {
+						throw new MultiConnectionQueryBuilderException(sprintf('%s can only work with one connection at a time', __CLASS__));
+					}
+					// Overrides an already set connection
+					$this->setConnection($manager->getConnection($tableConnectionName));
 				}
-				// Overrides an already set connection
-				$this->setConnection($this->getManager()->getConnection($tableConnectionName));
 			}
+
+			$table = $manager->getTableName($tableKey);
 		}
 
-		return $this->getManager()->getTableName($tableKey);
+		return $table;
 	}
 
 	/**

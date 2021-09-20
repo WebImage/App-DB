@@ -56,7 +56,7 @@ class ConnectionManager
 
 		$params = $this->getConnectionParams($name);
 
-		$connection_params = $this->getParamsForMode($params, $mode);
+		$connectionParams = $this->getParamsForMode($params, $mode);
 
 		$key = $name;
 
@@ -67,9 +67,18 @@ class ConnectionManager
 		}
 
 		if (!$this->connections->has($key)) {
+			$defaultParams    = ['wrapperClass' => \WebImage\Db\Connection::class];
+			$connectionParams = array_merge($defaultParams, $connectionParams);
+			$connection       = DriverManager::getConnection($connectionParams);
+
+			if ($connection instanceof \WebImage\Db\Connection) {
+				$connection->setConnectionManager($this);
+				$connection->setConnectionName($name);
+			}
+
 			$this->connections->set(
 				$key,
-				DriverManager::getConnection($connection_params)
+				$connection
 			);
 		}
 
@@ -108,9 +117,9 @@ class ConnectionManager
 	 *
 	 * @return QueryBuilder
 	 */
-	public function createQueryBuilder(/*$connectionName: string */)/*: QueryBuilder */
+	public function createQueryBuilder(string $connectionName=null)/*: QueryBuilder */
 	{
-		return new QueryBuilder($this);
+		return new QueryBuilder($this->getConnection($connectionName));
 	}
 
 	/**
@@ -131,7 +140,6 @@ class ConnectionManager
 
 		if (null !== $table) {
 			// Override tableName if overridden in table config
-
 			if (null !== $table->getTableName()) {
 				$tableName = $table->getTableName();
 			}
@@ -180,11 +188,10 @@ class ConnectionManager
 	 * @param ConnectionParams|null $params
 	 * @param string|null $mode MODE_READ or MODE_WRITE
 	 *
-	 * @return array
+	 * @return array<string, string>
 	 */
-	private function getParamsForMode(ConnectionParams $params, $mode=null)
+	private function getParamsForMode(ConnectionParams $params, $mode=null): array
 	{
-		$p = null;
 		if ($mode == self::MODE_READ) {
 			$p = $params->forReading();
 		} else if ($mode == self::MODE_WRITE) {
