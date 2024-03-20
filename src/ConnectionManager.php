@@ -4,7 +4,6 @@ namespace WebImage\Db;
 
 use RuntimeException;
 use WebImage\Core\Dictionary;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
 class ConnectionManager
@@ -47,7 +46,7 @@ class ConnectionManager
 	 *
 	 * @return Connection
 	 */
-	public function getConnection($name=null, $mode=null)
+	public function getConnection(string $name=null, string $mode=null): Connection
 	{
 		if (null === $name) $name = self::DEFAULT_CONNECTION;
 		if (null !== $mode && $mode != self::MODE_READ && $mode != self::MODE_WRITE) {
@@ -67,11 +66,11 @@ class ConnectionManager
 		}
 
 		if (!$this->connections->has($key)) {
-			$defaultParams    = ['wrapperClass' => \WebImage\Db\Connection::class];
+			$defaultParams    = ['wrapperClass' => Connection::class];
 			$connectionParams = array_merge($defaultParams, $connectionParams);
 			$connection       = DriverManager::getConnection($connectionParams);
 
-			if ($connection instanceof \WebImage\Db\Connection) {
+			if ($connection instanceof Connection) {
 				$connection->setConnectionManager($this);
 				$connection->setConnectionName($name);
 			}
@@ -92,7 +91,7 @@ class ConnectionManager
 	 *
 	 * @return ConnectionParams
 	 */
-	public function getConnectionParams($connectionName)
+	public function getConnectionParams($connectionName): ConnectionParams
 	{
 		if (!$this->connectionParams->has($connectionName)) {
 			throw new RuntimeException(sprintf('Unknown connection name: %s', $connectionName));
@@ -117,7 +116,7 @@ class ConnectionManager
 	 *
 	 * @return QueryBuilder
 	 */
-	public function createQueryBuilder(string $connectionName=null)/*: QueryBuilder */
+	public function createQueryBuilder(string $connectionName=null): QueryBuilder
 	{
 		return new QueryBuilder($this->getConnection($connectionName));
 	}
@@ -129,7 +128,7 @@ class ConnectionManager
 	 *
 	 * @return string
 	 */
-	public function getTableName(string $tableKey)
+	public function getTableName(string $tableKey): string
 	{
 		$table = $this->getTable($tableKey);
 		$prefix = $this->getConfig()->getTablePrefix();
@@ -156,7 +155,7 @@ class ConnectionManager
 	 *
 	 * @return TableConfig|null
 	 */
-	public function getTable($tableKey)
+	public function getTable($tableKey): ?TableConfig
 	{
 		return $this->tables->get($tableKey);
 	}

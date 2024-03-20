@@ -9,7 +9,7 @@ class Connection extends \Doctrine\DBAL\Connection
 	/** @var ConnectionManager */
 	private $connectionManager;
 
-	public function createQueryBuilder()
+	public function createQueryBuilder(): QueryBuilder
 	{
 		return new QueryBuilder($this);
 	}
