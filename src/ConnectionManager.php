@@ -86,12 +86,12 @@ class ConnectionManager
 
 	/**
 	 * Gets the connection parameters for a given $connectionName
-	 *
-	 * @throws RuntimeException
-	 *
+	 * @param string $connectionName
 	 * @return ConnectionParams
+	 *@throws RuntimeException
+	 *
 	 */
-	public function getConnectionParams($connectionName): ConnectionParams
+	public function getConnectionParams(string $connectionName): ConnectionParams
 	{
 		if (!$this->connectionParams->has($connectionName)) {
 			throw new RuntimeException(sprintf('Unknown connection name: %s', $connectionName));
@@ -104,7 +104,7 @@ class ConnectionManager
 	 * @param string $connectionName The name of the connection
 	 * @param ConnectionParams $params
 	 */
-	public function setConnectionParams($connectionName, ConnectionParams $params)
+	public function setConnectionParams(string $connectionName, ConnectionParams $params)
 	{
 		$this->connectionParams->set($connectionName, $params);
 	}

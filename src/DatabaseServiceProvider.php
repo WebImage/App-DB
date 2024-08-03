@@ -94,7 +94,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 	 *
 	 * @return ManagerConfig
 	 */
-	private function getManagerConfig(Config $config)
+	private function getManagerConfig(Config $config): ManagerConfig
 	{
 		$config = isset($config[self::CONFIG_SETTINGS]) ? $config[self::CONFIG_SETTINGS] : new Config();
 		$tablePrefix = $config->get('tablePrefix', '');

@@ -33,7 +33,7 @@ class ConnectionParams
 	/**
 	 * @return string
 	 */
-	public function getName()/*: string */
+	public function getName(): string
 	{
 		return $this->name;
 	}
@@ -43,7 +43,7 @@ class ConnectionParams
 	 *
 	 * @return array
 	 */
-	public function forReading()/*: array */
+	public function forReading(): array
 	{
 		return $this->mergedSettings($this->config->toArray(), self::KEY_READ);
 	}
@@ -53,7 +53,7 @@ class ConnectionParams
 	 *
 	 * @return array
 	 */
-	public function forWriting()/*: array */
+	public function forWriting(): array
 	{
 		return $this->mergedSettings($this->config->toArray(), self::KEY_WRITE);
 	}
@@ -63,7 +63,7 @@ class ConnectionParams
 	 *
 	 * @return array
 	 */
-	public function forDefault()/* :array */
+	public function forDefault() :array
 	{
 		return $this->mergedSettings($this->config->toArray());
 	}
@@ -76,7 +76,7 @@ class ConnectionParams
 	 *
 	 * @return array
 	 */
-	private function mergedSettings(array $array, $mergeKey=null)/* :array */
+	private function mergedSettings(array $array, $mergeKey=null): array
 	{
 		$settings = $this->config->toArray();
 
@@ -95,7 +95,7 @@ class ConnectionParams
 	 *
 	 * @return bool
 	 */
-	public function hasReadSettings()
+	public function hasReadSettings(): bool
 	{
 		return isset($this->config[self::KEY_READ]);
 	}
@@ -105,7 +105,7 @@ class ConnectionParams
 	 *
 	 * @return bool
 	 */
-	public function hasWriteSettings()
+	public function hasWriteSettings(): bool
 	{
 		return isset($this->config[self::KEY_WRITE]);
 	}
