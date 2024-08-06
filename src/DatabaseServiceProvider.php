@@ -14,7 +14,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 	const CONFIG_SETTINGS = 'settings'; // tablePrefix
 	const CONFIG_TABLES = 'tables';
 
-	protected $provides = [
+	protected array $provides = [
 		ConnectionManager::class
 	];
 
