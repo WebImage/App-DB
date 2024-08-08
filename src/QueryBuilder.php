@@ -4,6 +4,7 @@ namespace WebImage\Db;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineQueryBuilder;
+use WebImage\Db\Connection as WebImageConnection;
 
 /**
  * Class QueryBuilder
@@ -11,6 +12,21 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineQueryBuilder;
  */
 class QueryBuilder extends DoctrineQueryBuilder
 {
+	private ?ConnectionManager $connectionManager = null;
+	private ?string $connectionName = null;
+	/**
+	 * QueryBuilder constructor.  Doctrine has decided to hide the Connection object, so we have to override the constructor
+	 * @param Connection $connection
+	 */
+	public function __construct(Connection $connection)
+	{
+		parent::__construct($connection);
+		if ($connection instanceof WebImageConnection) {
+			$this->connectionManager = $connection->getConnectionManager();
+			$this->connectionName = $connection->getConnectionName();
+		}
+	}
+
 	/**
 	 * Alters the table name to use, if necessary, based on Manager
 	 * @param string|null $delete
@@ -18,7 +34,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function delete($delete = null, $alias = null)
+	public function delete($delete = null, $alias = null): QueryBuilder
 	{
 		$delete = $this->getTableName($delete, ConnectionManager::MODE_WRITE);
 
@@ -33,7 +49,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function update($update = null, $alias = null)
+	public function update($update = null, $alias = null): QueryBuilder
 	{
 		$update = $this->getTableName($update, ConnectionManager::MODE_WRITE);
 
@@ -47,7 +63,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function insert($insert = null)
+	public function insert($insert = null): QueryBuilder
 	{
 		$insert = $this->getTableName($insert, ConnectionManager::MODE_WRITE);
 
@@ -62,7 +78,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function from($from, $alias = null)
+	public function from($from, $alias = null): QueryBuilder
 	{
 		$from = $this->getTableName($from, ConnectionManager::MODE_READ);
 
@@ -79,7 +95,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function innerJoin($fromAlias, $join, $alias, $condition = null)
+	public function innerJoin($fromAlias, $join, $alias, $condition = null): QueryBuilder
 	{
 		$join = $this->getTableName($join, ConnectionManager::MODE_READ);
 
@@ -96,7 +112,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function leftJoin($fromAlias, $join, $alias, $condition = null)
+	public function leftJoin($fromAlias, $join, $alias, $condition = null): QueryBuilder
 	{
 		$join = $this->getTableName($join, ConnectionManager::MODE_READ);
 
@@ -113,7 +129,7 @@ class QueryBuilder extends DoctrineQueryBuilder
 	 *
 	 * @return $this
 	 */
-	public function rightJoin($fromAlias, $join, $alias, $condition = null)
+	public function rightJoin($fromAlias, $join, $alias, $condition = null): QueryBuilder
 	{
 		$join = $this->getTableName($join, ConnectionManager::MODE_READ);
 
@@ -122,11 +138,11 @@ class QueryBuilder extends DoctrineQueryBuilder
 
 	/**
 	 * @param string|null $tableKey
-	 * @param string $mode Manager::MODE_READ | Manager::MODE_WRITE
+	 * @param string|null $mode Manager::MODE_READ | Manager::MODE_WRITE
 	 *
 	 * @return string
 	 */
-	protected function getTableName($tableKey = null, $mode): ?string
+	protected function getTableName(string $tableKey = null, string $mode = null): ?string
 	{
 		if (null === $tableKey) return null;
 		if (null !== $mode && !in_array($mode, [ConnectionManager::MODE_READ, ConnectionManager::MODE_WRITE])) {
@@ -134,25 +150,25 @@ class QueryBuilder extends DoctrineQueryBuilder
 		}
 
 		$table      = $tableKey;
-		$connection = $this->getConnection();
+//		$connection = $this->getConnection();
 
-		if ($connection instanceof \WebImage\Db\Connection) {
-			$manager           = $connection->getConnectionManager();
-			$overrideTableName = $manager->getTable($tableKey);
+		if ($this->connectionManager !== null) {
+//			$manager           = $this->connectionManager;
+			$overrideTableName = $this->connectionManager->getTable($tableKey);
 
 			if ($overrideTableName !== null) {
 				$tableConnectionName = ($mode == ConnectionManager::MODE_WRITE) ? $overrideTableName->getWriteConnectionName() : $overrideTableName->getReadConnectionName();
 
-				if (null !== $tableConnectionName && $tableConnectionName != $connection->getConnectionName()) {
-					if ($connection->getConnectionName() !== null) {
+				if (null !== $tableConnectionName && $tableConnectionName != $this->connectionName) {
+					if ($this->connectionName !== null) {
 						throw new MultiConnectionQueryBuilderException(sprintf('%s can only work with one connection at a time', __CLASS__));
 					}
 					// Overrides an already set connection
-					$this->setConnection($manager->getConnection($tableConnectionName));
+					$this->setConnection($this->connectionManager->getConnection($tableConnectionName));
 				}
 			}
 
-			$table = $manager->getTableName($tableKey);
+			$table = $this->connectionManager->getTableName($tableKey);
 		}
 
 		return $table;
