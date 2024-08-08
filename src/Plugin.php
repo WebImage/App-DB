@@ -2,13 +2,12 @@
 
 namespace WebImage\Db;
 
-use League\Container\Definition\ClassDefinition;
 use WebImage\Application\AbstractPlugin;
 use WebImage\Application\ApplicationInterface;
 
 class Plugin extends AbstractPlugin
 {
-	public function load(ApplicationInterface $app)
+	public function load(ApplicationInterface $app): void
 	{
 		parent::load($app);
 
