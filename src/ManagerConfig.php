@@ -4,14 +4,14 @@ namespace WebImage\Db;
 
 class ManagerConfig {
 	/** @var string|null */
-	private $tablePrefix;
+	private ?string $tablePrefix;
 
 	/**
 	 * GlobalTableConfig constructor.
 	 *
 	 * @param string|null $tablePrefix
 	 */
-	public function __construct($tablePrefix='')
+	public function __construct(?string $tablePrefix = '')
 	{
 		$this->tablePrefix = $tablePrefix;
 	}
@@ -19,7 +19,7 @@ class ManagerConfig {
 	/**
 	 * @return string
 	 */
-	public function getTablePrefix()/* : string */
+	public function getTablePrefix(): ?string
 	{
 		return $this->tablePrefix;
 	}
