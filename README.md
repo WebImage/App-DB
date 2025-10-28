@@ -22,7 +22,7 @@ Settings are compatible with Doctrine's ConnectionManager, allowing you to use t
             ]
         ]
     ]
-)
+]
 ```
 
 Supported drivers include:
